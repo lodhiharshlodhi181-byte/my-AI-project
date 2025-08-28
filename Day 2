@@ -1,0 +1,25 @@
+function findHighestMark(marksArray) {
+    // Check if the array is empty
+    if (marksArray.length === 0) {
+        return "No marks provided.";
+    }
+
+    // Assume the first mark is the highest initially
+    let highest = marksArray[0];
+
+    // Loop through the array starting from index 1
+    for (let i = 1; i < marksArray.length; i++) {
+        // If current mark is higher than highest, update highest
+        if (marksArray[i] > highest) {
+            highest = marksArray[i];
+        }
+    }
+
+    return highest;
+}
+
+// Example usage:
+let studentMarks = [78, 85, 96, 88, 92];
+let highestMark = findHighestMark(studentMarks);
+
+console.log("The highest mark is: " + highestMark);
