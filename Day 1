@@ -1,0 +1,12 @@
+const student = {
+  name: "harsh lodhi",
+  age: 19,
+  course: "Computer Science",
+  grade: "A"
+};
+// Print the student details
+console.log("Student Details:");
+console.log("Name: " + student.name);
+console.log("Age: " + student.age);
+console.log("Course: " + student.course);
+console.log("Grade: " + student.grade);
