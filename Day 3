@@ -1,0 +1,69 @@
+const students = [
+  {
+    name: 'Jogendra',
+    id: '0187AS241063',
+    marks: [
+      { subject: 'Math', score: 93 },
+      { subject: 'Science', score: 92 },
+      { subject: 'English', score: 87 }
+    ]
+  },
+  {
+    name: 'Harsh',
+    id: '0187AS241053',
+    marks: [
+      { subject: 'Math', score: 89 },
+      { subject: 'Science', score: 99 },
+      { subject: 'English', score: 98 }
+    ]
+  },
+  {
+    name: 'Kalash',
+    id: '0187AS241065',
+    marks: [
+      { subject: 'Math', score: 85 },
+      { subject: 'Science', score: 87 },
+      { subject: 'English', score: 96 }
+    ]
+  }
+];
+
+// 1. Calculate the average score for each student
+const studentAverages = students.map(student => {
+  const totalScore = student.marks.reduce((sum, mark) => sum + mark.score, 0);
+  const average = totalScore / student.marks.length;
+  return {
+    name: student.name,
+    averageScore: average
+  };
+});
+
+console.log('Average scores for each student:');
+console.log(studentAverages);
+
+// 2. Students with average > 85
+const highAchievers = studentAverages.filter(student => student.averageScore > 85);
+
+console.log('\nStudents with an average score above 85:');
+console.log(highAchievers);
+
+// 3. Highest score in Math
+const mathScores = students.map(student => {
+  return student.marks.find(mark => mark.subject === 'Math').score;
+});
+
+const highestMathScore = mathScores.reduce((max, score) => Math.max(max, score), 0);
+
+console.log(`\nHighest score in Math: ${highestMathScore}`);
+
+// 4. Student with highest total score
+const studentTotals = students.map(student => ({
+  name: student.name,
+  totalScore: student.marks.reduce((sum, mark) => sum + mark.score, 0)
+}));
+
+const studentWithHighestTotal = studentTotals.reduce((maxStudent, currentStudent) =>
+  currentStudent.totalScore > maxStudent.totalScore ? currentStudent : maxStudent
+);
+
+console.log(`\nStudent with the highest total score: ${studentWithHighestTotal.name} with a total of ${studentWithHighestTotal.totalScore}`);
