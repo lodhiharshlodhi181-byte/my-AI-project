@@ -1,0 +1,87 @@
+// App.js
+import React from 'react';
+
+function ProfileCard({ name, title, avatar, bio, social }) {
+  const cardStyle = {
+    width: '320px',
+    border: '1px solid #ddd',
+    borderRadius: '12px',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+    padding: '24px',
+    fontFamily: 'Arial, sans-serif',
+    background: '#fff',
+    textAlign: 'center',
+    margin: '40px auto',
+  };
+
+  const avatarStyle = {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    marginBottom: '16px',
+  };
+
+  const nameStyle = {
+    fontSize: '1.4rem',
+    fontWeight: 'bold',
+    margin: '8px 0',
+  };
+
+  const titleStyle = {
+    fontSize: '1rem',
+    color: '#777',
+    marginBottom: '12px',
+  };
+
+  const bioStyle = {
+    fontSize: '0.95rem',
+    marginBottom: '16px',
+    color: '#444',
+  };
+
+  const socialIcons = {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '12px',
+    marginTop: '10px',
+  };
+
+  const iconStyle = {
+    color: '#333',
+    fontSize: '1.2rem',
+    textDecoration: 'none',
+  };
+
+  return (
+    <div style={cardStyle}>
+      <img src={avatar} alt="Profile Avatar" style={avatarStyle} />
+      <div style={nameStyle}>{name}</div>
+      <div style={titleStyle}>{title}</div>
+      <div style={bioStyle}>{bio}</div>
+      <div style={socialIcons}>
+        {social.map((item, index) => (
+          <a key={index} href={item.link} target="_blank" rel="noreferrer" style={iconStyle}>
+            {item.platform}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const profile = {
+    name: 'harsh lodhi',
+    title: 'Frontend Developer',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    bio: 'Passionate about building interactive user interfaces and web experiences.',
+    social: [
+      { platform: 'GitHub', link: 'https://github.com/johndoe' },
+      { platform: 'LinkedIn', link: 'https://linkedin.com/in/johndoe' },
+      { platform: 'Twitter', link: 'https://twitter.com/johndoe' },
+    ],
+  };
+
+  return <ProfileCard {...profile} />;
+}
