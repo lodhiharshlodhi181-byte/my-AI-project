@@ -1,0 +1,65 @@
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Mock student data (backend)
+const students = [
+  { id: 1, name: "Harsh lodhi", email: "lodhiharshlodhi@gmail.com" },
+  { id: 2, name: "jogendra singh sen", email: "jogendra45@gmail.com" },
+  { id: 3, name: "kalash tiwari", email: "kalashtiwari120620062gmail.com" }
+];
+
+// Serve API endpoint
+app.get('/api/students', (req, res) => {
+  res.json(students);
+});
+
+// Serve frontend HTML
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Student Directory</title>
+      <style>
+        body { font-family: Arial; padding: 20px; }
+        h1 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 10px; }
+      </style>
+    </head>
+    <body>
+      <h1>Student Directory</h1>
+      <p id="loading">Loading students...</p>
+      <ul id="studentList"></ul>
+
+      <script>
+        // Equivalent to useEffect in React
+        window.addEventListener('DOMContentLoaded', () => {
+          fetch('/api/students')
+            .then(res => res.json())
+            .then(data => {
+              const list = document.getElementById('studentList');
+              const loading = document.getElementById('loading');
+              loading.style.display = 'none';
+              data.forEach(student => {
+                const li = document.createElement('li');
+                li.textContent = student.name + ' — ' + student.email;
+                list.appendChild(li);
+              });
+            })
+            .catch(error => {
+              document.getElementById('loading').textContent = 'Error loading students';
+              console.error('Fetch error:', error);
+            });
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(\`Student Directory app running at http://localhost:\${port}\`);
+});
