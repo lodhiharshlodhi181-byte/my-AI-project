@@ -1,0 +1,130 @@
+// server/server.js
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const cors = require('cors');
+const Product = require('./models/Product');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB connected'));
+
+// Get products
+app.get('/api/products', async (req, res) => {
+  const products = await Product.find();
+  res.json(products);
+});
+
+// Stripe Checkout Session
+app.post('/api/checkout', async (req, res) => {
+  const { items } = req.body;
+  const lineItems = items.map(item => ({
+    price_data: {
+      currency: 'usd',
+      product_data: { name: item.name },
+      unit_amount: item.price * 100,
+    },
+    quantity: item.quantity,
+  }));
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: lineItems,
+    mode: 'payment',
+    success_url: `${process.env.CLIENT_URL}/success`,
+    cancel_url: `${process.env.CLIENT_URL}/cancel`,
+  });
+  res.json({ url: session.url });
+});
+
+app.listen(5000, () => console.log('Backend running on port 5000'));
+const mongoose = require('mongoose');
+const productSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  description: String,
+  image: String
+});
+module.exports = mongoose.model('Product', productSchema);
+import React, { useState, useEffect } from 'react';
+import ProductList from './ProductList';
+import Cart from './Cart';
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(setProducts);
+  }, []);
+
+  return (
+    <div>
+      <h1>Online Store</h1>
+      <ProductList products={products} addToCart={setCart} cart={cart} />
+      <Cart cart={cart} setCart={setCart} />
+    </div>
+  );
+}
+
+export default App;
+
+import React from 'react';
+export default function ProductList({ products, addToCart, cart }) {
+  return (
+    <div>
+      {products.map(p => (
+        <div key={p._id} style={{ border: '1px solid #ccc', padding: 10 }}>
+          <h3>{p.name}</h3>
+          <p>${p.price}</p>
+          <button onClick={() => {
+            const exists = cart.find(i => i._id === p._id);
+            if (exists) {
+              addToCart(cart.map(i =>
+                i._id === p._id ? { ...i, quantity: i.quantity + 1 } : i
+              ));
+            } else {
+              addToCart([...cart, { ...p, quantity: 1 }]);
+            }
+          }}>
+            Add to Cart
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+import React from 'react';
+export default function Cart({ cart, setCart }) {
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const checkout = async () => {
+    const resp = await fetch('http://localhost:5000/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: cart }),
+    });
+    const { url } = await resp.json();
+    window.location = url;
+  };
+
+  return (
+    <div>
+      <h2>Cart</h2>
+      {cart.map(item => (
+        <div key={item._id}>
+          {item.name} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}
+          <button onClick={() =>
+            setCart(cart.filter(i => i._id !== item._id))
+          }>Remove</button>
+        </div>
+      ))}
+      <h3>Total: ${total.toFixed(2)}</h3>
+      {cart.length > 0 && <button onClick={checkout}>Checkout</button>}
+    </div>
+  );
+}
