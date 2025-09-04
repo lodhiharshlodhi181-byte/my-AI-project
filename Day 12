@@ -1,0 +1,126 @@
+// backend/server.js
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const PORT = 5000;
+
+app.use(cors());
+app.use(express.json());
+
+let todos = [];
+let nextId = 1;
+
+// Get all todos
+app.get('/api/todos', (req, res) => {
+  res.json(todos);
+});
+
+// Add new todo
+app.post('/api/todos', (req, res) => {
+  const { text } = req.body;
+  if (!text) {
+    return res.status(400).json({ message: 'Text is required' });
+  }
+  const newTodo = { id: nextId++, text };
+  todos.push(newTodo);
+  res.status(201).json(newTodo);
+});
+
+// Delete todo
+app.delete('/api/todos/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  todos = todos.filter(todo => todo.id !== id);
+  res.json({ message: 'Todo deleted' });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+// App.js
+import React, { useState, useEffect } from 'react';
+
+const API_URL = 'http://localhost:5000/api/todos';
+
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [text, setText] = useState('');
+
+  // Fetch todos
+  useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setTodos(data));
+  }, []);
+
+  // Add todo
+  const addTodo = async () => {
+    if (!text.trim()) return;
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const newTodo = await res.json();
+    setTodos([...todos, newTodo]);
+    setText('');
+  };
+
+  // Delete todo
+  const deleteTodo = async (id) => {
+    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>To-Do App</h2>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Enter a todo"
+      />
+      <button onClick={addTodo}>Add</button>
+
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id}>
+            {todo.text} <button onClick={() => deleteTodo(todo.id)}>❌</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+// index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(<App />, document.getElementById('root'));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do App</title>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "5.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start"
+  }
+}
